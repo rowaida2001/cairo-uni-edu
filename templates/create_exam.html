@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Exam</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-image: url("{{ url_for('static', filename='img/png.jpg') }}");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      padding: 40px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .center-box {
+      background: rgba(255, 255, 255, 0.75);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid #d8e3dc;
+      max-width: 650px;
+      margin: 0 auto 30px auto;
+      text-align: center;
+    }
+
+    .page-title {
+      color: #2e5e4e;
+      font-size: 34px;
+      font-weight: 800;
+      margin-bottom: 30px;
+    }
+
+    .btn-choice {
+      min-width: 200px;
+      padding: 12px 25px;
+      font-size: 17px;
+      font-weight: 600;
+      border-radius: 50px;
+      border: none;
+      margin: 10px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .btn-manual {
+      background-color: #e0f2e9;
+      color: #24613c;
+    }
+
+    .btn-manual:hover {
+      background-color: #24613c;
+      color: #fff;
+    }
+
+    .btn-upload {
+      background-color: #fff5e6;
+      color: #5c4026;
+    }
+
+    .btn-upload:hover {
+      background-color: #5c4026;
+      color: #fff;
+    }
+
+    .form-section {
+      display: none;
+      margin-top: 30px;
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border: 1px solid #d8e3dc;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    label {
+      font-weight: 500;
+      color: #333;
+    }
+
+    input.form-control,
+    select.form-select {
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    .form-check-label {
+      margin-left: 8px;
+    }
+
+    .border {
+      border: 1px solid #e0e0e0 !important;
+    }
+
+    .btn-success {
+      background-color: #3e8e41;
+      border: none;
+      font-weight: bold;
+      padding: 10px 25px;
+      border-radius: 10px;
+      font-size: 17px;
+    }
+
+    .btn-success:hover {
+      background-color: #2f6e32;
+    }
+  </style>
+</head>
+<body>
+  <div class="center-box">
+    <h2 class="page-title">Create Exam</h2>
+    <button class="btn btn-choice btn-manual" onclick="showSection('manual')">Write Manually</button>
+    <button class="btn btn-choice btn-upload" onclick="showSection('upload')">Upload File</button>
+  </div>
+
+  <!-- نموذج الكتابة -->
+  <div id="manual" class="form-section form-container">
+    <form method="POST">
+      <label>Course:</label>
+      <select name="course_id" class="form-select mb-3" required>
+        {% for course in courses %}
+          <option value="{{ course[0] }}">{{ course[1] }}</option>
+        {% endfor %}
+      </select>
+
+      <label>Exam Title:</label>
+      <input type="text" name="title" class="form-control mb-3" required>
+
+      <label>Duration (minutes):</label>
+      <input type="number" name="duration" class="form-control mb-3" required>
+
+      <h5 class="mt-4">MCQ Questions</h5>
+      {% for i in range(5) %}
+      <div class="border p-3 mb-3 rounded">
+        <label>Question {{ i+1 }}:</label>
+        <input type="text" name="question" class="form-control mb-2" required>
+        <input type="hidden" name="question_type" value="mcq">
+        <input type="text" name="option_a" class="form-control mb-2" placeholder="Option A">
+        <input type="text" name="option_b" class="form-control mb-2" placeholder="Option B">
+        <input type="text" name="option_c" class="form-control mb-2" placeholder="Option C">
+        <input type="text" name="option_d" class="form-control mb-2" placeholder="Option D">
+        <input type="text" name="correct_option" class="form-control mb-2" placeholder="Correct Option (a/b/c/d)" required>
+      </div>
+      {% endfor %}
+
+      <h5 class="mt-4">True/False Questions</h5>
+      {% for i in range(5) %}
+      <div class="border p-3 mb-3 rounded">
+        <label>Question {{ i+6 }}:</label>
+        <input type="text" name="question" class="form-control mb-2" required>
+        <input type="hidden" name="question_type" value="tf">
+        <input type="hidden" name="option_a" value="True">
+        <input type="hidden" name="option_b" value="False">
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="correct_option_{{ i }}" value="a" required>
+          <label class="form-check-label">True</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="correct_option_{{ i }}" value="b">
+          <label class="form-check-label">False</label>
+        </div>
+      </div>
+      {% endfor %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container mt-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container mt-3">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+      <h5 class="mt-4">Essay Question</h5>
+      <div class="border p-3 mb-4 rounded">
+        <label>Question 11:</label>
+        <input type="text" name="question" class="form-control mb-2" required>
+        <input type="hidden" name="question_type" value="essay">
+      </div>
+
+      <input type="submit" value="Create Exam" class="btn btn-success">
+    </form>
+  </div>
+
+  <!-- نموذج الرفع -->
+  <div id="upload" class="form-section form-container">
+    <form action="/upload_exam_file" method="POST" enctype="multipart/form-data">
+      <label>Select Exam File:</label>
+      <input type="file" name="exam_file" accept=".pdf,.doc,.docx,.jpg,.png" class="form-control mb-3" required>
+      <input type="submit" value="Upload Exam" class="btn btn-success">
+    </form>
+  </div>
+
+  <script>
+    function showSection(sectionId) {
+      document.getElementById("manual").style.display = "none";
+      document.getElementById("upload").style.display = "none";
+
+      const allInputs = document.querySelectorAll("input, select");
+      allInputs.forEach(input => {
+        if (input.required) {
+          input.dataset.originalRequired = "true";
+        }
+        input.required = false;
+      });
+
+      document.getElementById(sectionId).style.display = "block";
+
+      const visibleInputs = document.querySelectorAll("#" + sectionId + " input, #" + sectionId + " select");
+      visibleInputs.forEach(input => {
+        if (input.dataset.originalRequired === "true") {
+          input.required = true;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
+

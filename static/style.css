@@ -23,14 +23,16 @@
 }
 
 .logo-img {
-  max-width: 120px;
-  opacity: 0.9;
+  width: 130px;
+  height: auto;
   display: block;
+  margin: 0 auto;
+  transition: transform 0.3s ease-in-out;
+  max-height: 150px;  /* يمنع القص */
+  object-fit: contain; /* يحافظ على الشكل */
+  opacity: 0.9;
   border-radius: 10px;
-  position: relative;
-  margin: auto;
 }
-
 h4, label, .form-label, p, a {
   font-family: 'Cairo', sans-serif;
   font-weight: 600;
@@ -94,5 +96,9 @@ h4, label, .form-label, p, a {
   }
   100% {
     left: 125%;
+
+    body {
+    overflow: visible !important;
+}
   }
 }
